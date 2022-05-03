@@ -22,6 +22,9 @@ void parcoursPostfixe(noeud* racine, void (*pf)(noeud*));
 void parcoursInfixe(noeud* racine, void (*pf)(noeud*));
 void afficher(noeud* n);
 
+int nbNoeuds(noeud* racine);
+int hauteurArbre(noeud* racine);
+
 int inserArbreVide(arbre_binaire* pArbre, int n_val);
 int ajoutNoeud(arbre_binaire* pArbre, int n_val);
 
@@ -48,12 +51,14 @@ int main() {
 	ajoutNoeud(pArbre, 4);		printf("taille : %d\n", pArbre->taille);
 	ajoutNoeud(pArbre, 3);		printf("taille : %d\n", pArbre->taille);
 
+	printf("taille 2 : %d\n", nbNoeuds(pArbre->racine));
+	printf("hauteur : %d\n", hauteurArbre(pArbre->racine));
+
 	//parcoursPrefixe(pArbre->racine, &afficher);
 	parcoursInfixe(pArbre->racine, &afficher);
 	//parcoursPostfixe(pArbre->racine, &afficher);
 
-	noeud *elem=supprNoeud(pArbre, pArbre->racine, 1);		printf("taille : %d\n", pArbre->taille);
-	//parcoursInfixe(pArbre->racine, &afficher);
+	noeud *elem=supprNoeud(pArbre, pArbre->racine, 1);	printf("taille : %d\n", pArbre->taille);
 
 	printf("\n");
 
@@ -71,8 +76,6 @@ int main() {
 
 	supprNoeudArbre(pArbre,3);
 	parcoursInfixe(pArbre->racine, &afficher);		printf("taille : %d\n", pArbre->taille);
-
-	printf("\n");
 
 	rechercheElem(pArbre, pArbre->racine, 2, &elemPresent);
 	rechercheElem(pArbre, pArbre->racine, 10, &elemPresent);
@@ -124,6 +127,36 @@ void initialisation(arbre_binaire* pArbre)
 {
 	pArbre->racine = NULL;
 	pArbre->taille = 0;
+}
+
+
+int nbNoeuds(noeud* racine) {
+	int n_noeud = 0;
+
+	if (racine == nullptr)
+		n_noeud = 0;
+	else {
+		n_noeud = 1 + nbNoeuds(racine->fgauche) + nbNoeuds(racine->fdroite);
+	}
+
+	return n_noeud;
+}
+
+int hauteurArbre(noeud* racine) {
+	int hauteur = 0;
+
+	if (racine == nullptr)
+		hauteur = 0;
+	else {
+		int n_fg = nbNoeuds(racine->fgauche);
+		int n_fd = nbNoeuds(racine->fdroite);
+
+		if (n_fg > n_fd)
+			hauteur = 1 + n_fg;
+		else
+			hauteur = 1 + n_fd;
+	}
+	return hauteur;
 }
 
 
