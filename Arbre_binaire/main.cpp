@@ -38,6 +38,11 @@ void elemPresent(int n_data);
 void liberer(arbre_binaire* pArbre, noeud** p_racine);
 
 int isEquilibre(noeud* racine);
+int diffEquilibre(noeud* fgauche, noeud* fdroite);
+void equilibreArbre(arbre_binaire* pArbre);
+void equilibrage(arbre_binaire* pArbre, noeud* racine, noeud* parent);
+void rotationGauche(arbre_binaire* pArbre, noeud* parent, noeud* enfant);
+void rotationDroite(arbre_binaire* pArbre, noeud* parent, noeud* enfant);
 
 int main() {
 
@@ -45,18 +50,20 @@ int main() {
 	pArbre = (arbre_binaire*)malloc(sizeof(arbre_binaire));
 	initialisation(pArbre);
 
-    inserArbreVide(pArbre, 10);	printf("taille : %d\n", pArbre->taille);
-	ajoutNoeud(pArbre, 20);		printf("taille : %d\n", pArbre->taille);
-	ajoutNoeud(pArbre, 8);		printf("taille : %d\n", pArbre->taille);
-	ajoutNoeud(pArbre, 5);		printf("taille : %d\n", pArbre->taille);
-	ajoutNoeud(pArbre, 6);		printf("taille : %d\n", pArbre->taille);
-	ajoutNoeud(pArbre, 4);		printf("taille : %d\n", pArbre->taille);
-	ajoutNoeud(pArbre, 3);		printf("taille : %d\n", pArbre->taille);
+    inserArbreVide(pArbre, 10);	//printf("taille : %d\n", pArbre->taille);
+	ajoutNoeud(pArbre, 20);		//printf("taille : %d\n", pArbre->taille);
+	ajoutNoeud(pArbre, 8);		//printf("taille : %d\n", pArbre->taille);
+	ajoutNoeud(pArbre, 5);		//printf("taille : %d\n", pArbre->taille);
+	ajoutNoeud(pArbre, 6);		//printf("taille : %d\n", pArbre->taille);
+	ajoutNoeud(pArbre, 4);		//printf("taille : %d\n", pArbre->taille);
+	ajoutNoeud(pArbre, 3);		//printf("taille : %d\n", pArbre->taille);
 
 	if (isEquilibre(pArbre->racine))
 		printf("arbre equilibre\n");
 	else
 		printf("arbre desequilibre\n");
+
+	//equilibreArbre(pArbre);
 
 	printf("taille 2 : %d\n", nbNoeuds(pArbre->racine));
 	printf("hauteur : %d\n", hauteurArbre(pArbre->racine));
@@ -316,13 +323,72 @@ int isEquilibre(noeud* racine) {
 				return 0;
 		}
 	}
-	
-	/*if ((n_fg - n_fd) > 1) {
-			isEquilibre
-		}
-		else if ((n_fg - n_fd) < -1) {
+}
 
-		}
+int diffEquilibre(noeud* fgauche, noeud* fdroite) {
+	return nbNoeuds(fdroite) - nbNoeuds(fgauche);
+}
+
+void equilibreArbre(arbre_binaire* pArbre) {
+	equilibrage(pArbre, pArbre->racine, nullptr);
+}
+
+void equilibrage(arbre_binaire* pArbre, noeud* racine, noeud* parent) {
+
+	equilibrage(pArbre, racine->fgauche, racine);
+	equilibrage(pArbre, racine->fdroite, racine);
+
+	if (racine == nullptr) {
+		return;
+	}
+
+	int noeudBalance = diffEquilibre(racine->fgauche, racine->fdroite);
+	if (noeudBalance == 2) {
+		int balanceFd = diffEquilibre(racine->fdroite->fgauche, racine->fdroite->fdroite);
+		if (balanceFd == -1)
+			rotationDroite(pArbre, racine, racine->fdroite);
+		rotationGauche(pArbre, parent, racine);
+	}
+	else if (noeudBalance == -2) {
+		int balanceFg = diffEquilibre(racine->fgauche->fdroite, racine->fgauche->fgauche);
+		if (balanceFg == 1)
+			rotationGauche(pArbre, racine, racine->fgauche);
+		rotationDroite(pArbre, parent, racine);
+	}
+}
+
+void rotationGauche(arbre_binaire* pArbre, noeud* parent, noeud* enfant) {
+	if (enfant == nullptr)
+		return;
+	if (parent != nullptr) {
+		if (parent->fdroite == enfant)
+			parent->fdroite = enfant->fdroite;
 		else
-			return 1;*/
+			parent->fgauche = enfant->fdroite;
+	}
+
+	enfant->fdroite = enfant->fdroite->fdroite;
+
+	parent = enfant->fdroite;
+	enfant->fdroite->fgauche = enfant;
+	if (enfant == pArbre->racine)
+		pArbre->racine = enfant->fdroite;
+}
+
+void rotationDroite(arbre_binaire* pArbre, noeud* parent, noeud* enfant) {
+	if (enfant == nullptr)
+		return;
+	if (parent != nullptr) {
+		if (parent->fgauche == enfant)
+			parent->fgauche = enfant->fgauche;
+		else
+			parent->fdroite = enfant->fgauche;
+	}
+
+	enfant->fgauche = enfant->fgauche->fdroite;
+
+	parent = enfant->fgauche;
+	enfant->fgauche->fdroite = enfant;
+	if (enfant == pArbre->racine)
+		pArbre->racine = enfant->fgauche;
 }
