@@ -37,6 +37,8 @@ void elemPresent(int n_data);
 
 void liberer(arbre_binaire* pArbre, noeud** p_racine);
 
+int isEquilibre(noeud* racine);
+
 int main() {
 
 	arbre_binaire* pArbre=nullptr;
@@ -50,6 +52,11 @@ int main() {
 	ajoutNoeud(pArbre, 6);		printf("taille : %d\n", pArbre->taille);
 	ajoutNoeud(pArbre, 4);		printf("taille : %d\n", pArbre->taille);
 	ajoutNoeud(pArbre, 3);		printf("taille : %d\n", pArbre->taille);
+
+	if (isEquilibre(pArbre->racine))
+		printf("arbre equilibre\n");
+	else
+		printf("arbre desequilibre\n");
 
 	printf("taille 2 : %d\n", nbNoeuds(pArbre->racine));
 	printf("hauteur : %d\n", hauteurArbre(pArbre->racine));
@@ -131,32 +138,25 @@ void initialisation(arbre_binaire* pArbre)
 
 
 int nbNoeuds(noeud* racine) {
-	int n_noeud = 0;
-
 	if (racine == nullptr)
-		n_noeud = 0;
-	else {
-		n_noeud = 1 + nbNoeuds(racine->fgauche) + nbNoeuds(racine->fdroite);
-	}
+		return 0;
+	else
+		return (1 + nbNoeuds(racine->fgauche) + nbNoeuds(racine->fdroite));
 
-	return n_noeud;
 }
 
 int hauteurArbre(noeud* racine) {
-	int hauteur = 0;
-
 	if (racine == nullptr)
-		hauteur = 0;
+		return 0;
 	else {
 		int n_fg = nbNoeuds(racine->fgauche);
 		int n_fd = nbNoeuds(racine->fdroite);
 
 		if (n_fg > n_fd)
-			hauteur = 1 + n_fg;
+			return (1 + n_fg);
 		else
-			hauteur = 1 + n_fd;
+			return (1 + n_fd);
 	}
-	return hauteur;
 }
 
 
@@ -230,8 +230,10 @@ void liberer(arbre_binaire* pArbre, noeud** p_racine) {
 
 noeud* supprNoeud(arbre_binaire *pArbre, noeud *courant, int n_val)
 {
-	if (courant == nullptr) { //Si arbre vide
-
+	if (n_val == pArbre->racine->n_donnee) {	//la fonctin a un probleme si on supprime, la racine, alors on contourne le probleme...
+		return courant;
+	}
+	else if (courant == nullptr) { //Si arbre vide
 		return courant;
 	}
 	else if (n_val < courant->n_donnee) {//Si val à suppr < donnée du noeud courant => sous arbre gauche
@@ -295,4 +297,32 @@ noeud* rechercheElem(arbre_binaire* pArbre, noeud* courant, int n_val, void (*pf
 
 void elemPresent(int n_data) {
 	printf("la valeur %d est presente dans l'arbre", n_data);
+}
+
+int isEquilibre(noeud* racine) {
+	if (racine == nullptr)
+		return 1;
+	else {
+		int n_fg, n_fd;
+		n_fg = nbNoeuds(racine->fgauche);
+		n_fd = nbNoeuds(racine->fdroite);
+
+		if (abs(n_fg - n_fd) > 1)
+			return 0;
+		else {
+			if (isEquilibre(racine->fgauche) && isEquilibre(racine->fdroite))
+				return 1;
+			else
+				return 0;
+		}
+	}
+	
+	/*if ((n_fg - n_fd) > 1) {
+			isEquilibre
+		}
+		else if ((n_fg - n_fd) < -1) {
+
+		}
+		else
+			return 1;*/
 }
